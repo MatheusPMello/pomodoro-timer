@@ -45,3 +45,24 @@
   font-size: 5rem;
   font-weight: bold;
 }
+
+.button-start {
+  margin: 0 1rem;
+  background-color: #6247EA;
+  color: white;
+}
+
+.button-reset {
+  margin: 0 1rem;
+  background-color: white;
+  color: #6247EA;
+}
+
+.pomodoro-container {
+  background-color: rgba(148, 156, 236, 0.5);
+  padding: 2rem;
+  border-radius: 100px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  margin-top: 5rem;
+
+}
