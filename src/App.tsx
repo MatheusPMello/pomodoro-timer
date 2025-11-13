@@ -3,8 +3,14 @@ import './App.css';
 import Button from 'react-bootstrap/Button';
 import { Container, Row, Col } from 'react-bootstrap';
 
+const POMODORO_TIMES = {
+  work: 25*60,
+  shortBreak: 5*60,
+  longBreak: 15*60
+}
+
 function App() {
-  const [actualTime, setActualTime] = useState(1500);
+  const [actualTime, setActualTime] = useState(POMODORO_TIMES.work);
   const [isRunning, setIsRunning] = useState(false);
   const [actualMode, setActualMode] = useState<string>("work");
 
@@ -38,6 +44,13 @@ function App() {
     return `${minutes}:${String(seconds).padStart(2, '0')}`;
   }
 
+  function handleModeChange(newMode: string) {
+    setActualMode(newMode);
+    setActualTime(POMODORO_TIMES[newMode]);
+    setIsRunning(false);
+
+  }
+
   // Use a ternary operator for cleaner conditional rendering
   const buttonText = isRunning ? "Pause" : "Start";
 
@@ -53,6 +66,13 @@ function App() {
   return (
     <Container>
       <div className="pomodoro-container">
+        <Row>
+          <Col>
+            <Button className="button-start" variant="primary" onClick={() => handleModeChange("work")}>Work</Button>
+            <Button className="button-start" variant="primary" onClick={() => handleModeChange("shortBreak")}>Short Break</Button>
+            <Button className="button-start" variant="primary" onClick={() => handleModeChange("longBreak")}>Long Break</Button>
+          </Col>
+        </Row>
         <Row className="justify-content-center">
           <Col className='timer'>
             {formatTime(actualTime)}
