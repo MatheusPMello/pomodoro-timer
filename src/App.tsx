@@ -6,6 +6,7 @@ import { Container, Row, Col } from 'react-bootstrap';
 function App() {
   const [actualTime, setActualTime] = useState(1500);
   const [isRunning, setIsRunning] = useState(false);
+  const [actualMode, setActualMode] = useState<string>("work");
 
   // Effect hook
   useEffect(() => {
@@ -51,23 +52,25 @@ function App() {
 
   return (
     <Container>
-      <Row className="justify-content-center">
-        <Col className='timer'>
-          {formatTime(actualTime)}
-        </Col>
-      </Row>
-      <Row className="justify-content-center">
-        <Col>
-          <Button variant="primary" onClick={handleStartStop}>
-            {buttonText}
-          </Button>
-        </Col>
-        <Col>
-          <Button variant="primary" onClick={handleReset}>
-            Reset
-          </Button>
-        </Col>
-      </Row>
+      <div className="pomodoro-container">
+        <Row className="justify-content-center">
+          <Col className='timer'>
+            {formatTime(actualTime)}
+          </Col>
+        </Row>
+        <Row className="justify-content-center">
+          <Col>
+            <Button className="button-start" variant="primary" size="lg" onClick={handleStartStop}>
+              {buttonText}
+            </Button>
+          </Col>
+          <Col>
+            <Button className="button-reset" variant="primary" size="lg" onClick={handleReset}>
+              Reset
+            </Button>
+          </Col>
+        </Row>
+      </div>
     </Container>
   );
 }
