@@ -3,6 +3,8 @@ import './App.css';
 import Button from 'react-bootstrap/Button';
 import { Container, Row, Col } from 'react-bootstrap';
 
+type Mode = "work" | "shortBreak" | "longBreak";
+
 const POMODORO_TIMES = {
   work: 25*60,
   shortBreak: 5*60,
@@ -12,7 +14,7 @@ const POMODORO_TIMES = {
 function App() {
   const [actualTime, setActualTime] = useState(POMODORO_TIMES.work);
   const [isRunning, setIsRunning] = useState(false);
-  const [actualMode, setActualMode] = useState<string>("work");
+  const [actualMode, setActualMode] = useState<Mode>("work");
 
   // Effect hook
   useEffect(() => {
@@ -23,8 +25,11 @@ function App() {
           if (prevTime > 0) {
             return prevTime - 1;
           } else {
-            setIsRunning(false); // Stop the timer when it hits 0
-            return 0; // Ensure it stays at 0
+            setIsRunning(false);
+            const nextMode: Mode = actualMode === "work" 
+            ? "shortBreak" 
+            : "work";
+            return POMODORO_TIMES[nextMode];
           }
         });
       }, 1000);
@@ -44,7 +49,7 @@ function App() {
     return `${minutes}:${String(seconds).padStart(2, '0')}`;
   }
 
-  function handleModeChange(newMode: string) {
+  function handleModeChange(newMode: Mode) {
     setActualMode(newMode);
     setActualTime(POMODORO_TIMES[newMode]);
     setIsRunning(false);
