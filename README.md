@@ -61,3 +61,15 @@ To start the development server, run:
 
 ```sh
 npm run dev
+```
+
+This will open the application in your default browser at http://localhost:5173.
+
+## 📜 Available Scripts
+npm run dev: Runs the app in development mode.
+
+npm run build: Builds the app for production.
+
+npm run lint: Lints the code using ESLint.
+
+npm run preview: Previews the production build locally.
