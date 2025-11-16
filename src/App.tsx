@@ -15,37 +15,54 @@ function App() {
   const [actualTime, setActualTime] = useState(POMODORO_TIMES.work);
   const [isRunning, setIsRunning] = useState(false);
   const [actualMode, setActualMode] = useState<Mode>("work");
+  const [sessionCount, setSessionCount] = useState(0);
 
   // Effect hook
   useEffect(() => {
-    let interval: NodeJS.Timeout;
+    let interval: ReturnType<typeof setInterval> | undefined;
     if (isRunning) {
       interval = setInterval(() => {
         setActualTime((prevTime) => {
           if (prevTime > 0) {
             return prevTime - 1;
-          } else {
-            setIsRunning(false);
-            const nextMode: Mode = actualMode === "work" 
-            ? "shortBreak" 
-            : "work";
-            return POMODORO_TIMES[nextMode];
           }
+          
+          handleTimerEnd(); 
+          return 0;
         });
       }, 1000);
     }
+    return () => clearInterval(interval);
+  }, [isRunning]);
 
-    // Cleanup function
-    return () => {
-      clearInterval(interval);
-    };
-  }, [isRunning]); // Dependency array
+  const handleTimerEnd = () => {
+    setIsRunning(false);
+
+    let nextMode: Mode = "work";
+    let nextSessionCount = sessionCount;
+
+    if (actualMode === "work") {
+      nextSessionCount++;
+
+      if (nextSessionCount === 4) {
+        nextMode = "longBreak";
+        nextSessionCount = 0;
+      } else {
+        nextMode = "shortBreak";
+      }
+    } else {
+      nextMode = "work";
+    }
+
+    setActualMode(nextMode);
+    setSessionCount(nextSessionCount);
+    setActualTime(POMODORO_TIMES[nextMode]);
+  };
 
   function formatTime(timeInSeconds: number) {
     const minutes = Math.floor(timeInSeconds / 60);
     const seconds = timeInSeconds % 60;
     
-    // Use padStart to add a leading zero if seconds < 10
     return `${minutes}:${String(seconds).padStart(2, '0')}`;
   }
 
@@ -56,12 +73,12 @@ function App() {
 
   }
 
-  // Use a ternary operator for cleaner conditional rendering
   const buttonText = isRunning ? "Pause" : "Start";
 
   const handleReset = () => {
     setIsRunning(false);
-    setActualTime(1500);
+    setActualTime(POMODORO_TIMES[actualMode]);
+    setSessionCount(0);
   };
 
   const handleStartStop = () => {
