@@ -1,68 +1,128 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
+/*
+ * Pomodoro Timer Stylesheet
+ * -------------------------
+ * This file contains all the styles for the Pomodoro Timer application.
+ * It's designed to be clean, modern, and easy to maintain.
+ */
+
+/* === Global Styles === */
+
+/* Import a clean, modern font */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap');
+
+/* Set the font and a soft background for the whole page */
+body {
+  font-family: 'Poppins', sans-serif;
+  background-color: #f0f2f5; /* A very light, soft gray */
+  display: grid;
+  place-items: center;
+  min-height: 100vh;
+}
+
+/* === Main Container === */
+
+.pomodoro-container {
+  background-color: #ffffff; /* Default white card */
+  padding: 2rem 3rem;
+  border-radius: 16px; /* A modern, subtle curve */
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.07);
+  width: 100%;
+  max-width: 480px;
+  
+  /* This makes the color change feel smooth */
+  transition: background-color 0.5s ease;
+}
+
+/* === Mode-Specific Styles === */
+
+/* When the mode is "work" */
+.pomodoro-container.work {
+  background-color: #e0e8ff; /* A soft, focused blue */
+}
+
+/* When the mode is "shortBreak" */
+.pomodoro-container.shortBreak {
+  background-color: #e0f8f0; /* A soft, relaxing green */
+}
+
+/* When the mode is "longBreak" */
+.pomodoro-container.longBreak {
+  background-color: #e6e0f8; /* A soft, restful purple */
+}
+
+/* === Timer Display === */
+
+.timer {
+  font-size: 5rem; /* 5rem is great */
+  font-weight: 700; /* Use the bold font weight */
+  color: #1a202c; /* A dark, rich text color (not pure black) */
   text-align: center;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+/* === Tab Controls === */
+
+/* This is the container for the mode tabs */
+.mode-tabs {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+/* This is your old ".button-start" class, renamed */
+.mode-button {
+  background-color: transparent;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 500;
+  font-size: 1rem;
+  color: #718096; /* A muted, gray color */
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+/* This is how the *active* button looks */
+.mode-button.active {
+  background-color: #ffffff;
+  color: #4a5568;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
-.card {
-  padding: 2em;
+/* === Action Buttons === */
+
+.action-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 2rem;
 }
 
-.read-the-docs {
-  color: #888;
+/* Base style for both action buttons */
+.action-button {
+  border: none;
+  border-radius: 8px;
+  padding: 0.75rem 2rem;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 500;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
-.timer {
-  font-size: 5rem;
-  font-weight: bold;
-}
-
-.button-start {
-  margin: 0 1rem;
-  background-color: #6247EA;
+.start-button {
+  background-color: #4a5568;
   color: white;
 }
-
-.button-reset {
-  margin: 0 1rem;
-  background-color: white;
-  color: #6247EA;
+.start-button:hover {
+  background-color: #2d3748;
 }
 
-.pomodoro-container {
-  background-color: rgba(148, 156, 236, 0.5);
-  padding: 2rem;
-  border-radius: 100px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  margin-top: 5rem;
-
+.reset-button {
+  background-color: transparent;
+  color: #718096; /* Muted gray */
+}
+.reset-button:hover {
+  background-color: #e2e8f0; /* Light gray on hover */
 }
