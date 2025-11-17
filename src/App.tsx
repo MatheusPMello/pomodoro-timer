@@ -146,14 +146,14 @@ const Feedback = () => {
     alert("Feedback sent! Thank you");
     setShowFeedback(false);
   };
-  
+
   return (
     <>
       <button className="feedback-button" onClick={() => setShowFeedback(true)}>Feedback</button>
       {showFeedback && (
         <div className="feedback-modal">
           <form name="feedback-form" method="post" data-netlify="true" onSubmit={handleFeedbackSubmit}>
-            <input type="hidden" name="form-name" value="feedback" />
+            <input type="hidden" name="form-name" value="feedback-form" />
             
             <h3>Share Your Feedback</h3>
             <textarea name="message" required></textarea>
