@@ -8,7 +8,8 @@ A modern, minimalist Pomodoro timer built from scratch with **React**, **TypeScr
 
 ## 📸 Preview
 
-<img width="1312" height="840" alt="image" src="https://github.com/user-attachments/assets/29480ed0-9327-4cd6-a234-ae8eafd00589" />
+<img width="1917" height="923" alt="image" src="https://github.com/user-attachments/assets/737fc2a3-0fc0-4d88-ba63-7f7710848333" />
+
 
 ## Core Features
 
