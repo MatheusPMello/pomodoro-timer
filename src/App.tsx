@@ -165,6 +165,23 @@ function App() {
     return () => clearInterval(interval);
   }, [isRunning, actualMode]);
 
+  useEffect(() => {
+    const timeString = formatTime(actualTime);
+
+    let modeText = "Work";
+    if (actualMode === "shortBreak"){
+      modeText = "Short Break";
+    } else if (actualMode === "longBreak") {
+      modeText = "Long Break";
+    }
+
+    if (isRunning){
+      document.title = `${timeString} - ${modeText}`;
+    } else {
+      document.title = "Pomodoro Timer";
+    }
+  }, [actualTime, actualMode, isRunning]);
+
   /**
    * Handles the logic when the timer reaches zero.
    * It stops the timer, plays an alert, and switches to the next mode.
