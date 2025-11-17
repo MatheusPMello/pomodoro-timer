@@ -7,6 +7,10 @@
     <title>pomodoro-timer</title>
   </head>
   <body>
+    <form name="feedback-form" netlify netlify-honeypot="bot-field" hidden>
+      <input type="hidden" name="form-name" value="feedback-form" />
+      <textarea name="message"></textarea>
+    </form>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
