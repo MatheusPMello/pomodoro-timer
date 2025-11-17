@@ -146,7 +146,7 @@ const Feedback = () => {
     alert("Feedback sent! Thank you");
     setShowFeedback(false);
   };
-// --- Feedback Component ---
+  
   return (
     <>
       <button className="feedback-button" onClick={() => setShowFeedback(true)}>Feedback</button>
