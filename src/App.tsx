@@ -134,6 +134,50 @@ const Timer = ({ actualTime, buttonText, handleStartStop, handleReset }: TimerPr
  * It manages the timer state, mode, and user interactions.
  * @returns {JSX.Element}
  */
+/**
+ * A component that renders the feedback button and modal.
+ * @returns {JSX.Element}
+ */
+const Feedback = () => {
+  const [showFeedback, setShowFeedback] = useState(false);
+
+  const handleFeedbackSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    alert("Feedback sent! Thank you");
+    setShowFeedback(false);
+  };
+
+  return (
+    <>
+      <button className="feedback-button" onClick={() => setShowFeedback(true)}>Feedback</button>
+      {showFeedback && (
+        <div className="feedback-modal">
+          <form name="feedback-form" method="post" data-netlify="true" onSubmit={handleFeedbackSubmit}>
+            <input type="hidden" name="form-name" value="feedback" />
+            
+            <h3>Share Your Feedback</h3>
+            <textarea name="message" required></textarea>
+
+            <div className="feedback-controls">
+              <button type="button" className="action-button reset-button" onClick={() => setShowFeedback(false)}>
+                Cancel
+              </button>
+              <button type="submit" className="action-button start-button">Send</button>
+            </div>
+          </form>
+        </div>
+      )}
+    </>
+  );
+};
+
+// --- Main App Component ---
+
+/**
+ * The main application component for the Pomodoro Timer.
+ * It manages the timer state, mode, and user interactions.
+ * @returns {JSX.Element}
+ */
 function App() {
   /** State for the current time in seconds. */
   const [actualTime, setActualTime] = useState(POMODORO_TIMES.work);
@@ -265,6 +309,7 @@ function App() {
         <p>
           A portfolio project by <a href="https://github.com/MatheusPMello/pomodoro-timer" target="_blank" rel="noopener noreferrer">MatheusPMello</a>
         </p>
+        <Feedback />
       </footer>
 
     </div>
