@@ -1,45 +1,67 @@
+/* src/App.tsx */
+
 import { useState, useEffect } from 'react';
 import './App.css';
 import { Row, Col } from 'react-bootstrap';
 
+// --- App Settings & Types ---
+
 /**
- * Represents the possible modes for the Pomodoro timer.
+ * Represents the possible timer modes.
+ * @typedef {('work'|'shortBreak'|'longBreak')} Mode
  */
 type Mode = "work" | "shortBreak" | "longBreak";
 
 /**
- * Defines the duration in seconds for each Pomodoro mode.
+ * A mapping of timer modes to their duration in seconds.
+ * @type {Object.<Mode, number>}
  */
-const POMODORO_TIMES = {
-  work: 25 * 60,
-  shortBreak: 5 * 60,
-  longBreak: 15 * 60
+const POMODORO_TIMES: { [key in Mode]: number } = {
+  work: 25 * 60,       // 25 minutes
+  shortBreak: 5 * 60,  // 5 minutes
+  longBreak: 15 * 60,  // 15 minutes
 };
 
 /**
- * Formats a time value in seconds into a `mm:ss` string.
+ * Audio element to be played when a timer session ends.
+ * @type {HTMLAudioElement}
+ */
+const alertAudio = new Audio('/alert.mp3');
+
+// --- Helper Functions ---
+
+/**
+ * Formats a given time in seconds into a MM:SS string.
  * @param {number} timeInSeconds - The time in seconds to format.
- * @returns {string} The formatted time string.
+ * @returns {string} The formatted time string (e.g., "25:00").
  */
 const formatTime = (timeInSeconds: number): string => {
   const minutes = Math.floor(timeInSeconds / 60);
   const seconds = timeInSeconds % 60;
-  return `${minutes}:${String(seconds).padStart(2, '0')}`;
+  
+  const formattedMinutes = String(minutes).padStart(2, '0');
+  const formattedSeconds = String(seconds).padStart(2, '0');
+  
+  return `${formattedMinutes}:${formattedSeconds}`;
 };
+
+// --- Child Components ---
 
 /**
  * Props for the ModeSelector component.
  * @interface
  */
 interface ModeSelectorProps {
+  /** The current active timer mode. */
   actualMode: Mode;
+  /** Function to handle mode changes. */
   handleModeChange: (mode: Mode) => void;
 }
 
 /**
- * Renders the mode selection buttons.
- * @param {ModeSelectorProps} props - The component props.
- * @returns {JSX.Element} The rendered mode selector.
+ * A component that renders buttons to switch between timer modes.
+ * @param {ModeSelectorProps} props - The props for the component.
+ * @returns {JSX.Element}
  */
 const ModeSelector = ({ actualMode, handleModeChange }: ModeSelectorProps) => (
   <Row className="justify-content-center">
@@ -68,18 +90,22 @@ const ModeSelector = ({ actualMode, handleModeChange }: ModeSelectorProps) => (
  * @interface
  */
 interface TimerProps {
+  /** The current time in seconds to display. */
   actualTime: number;
-  isRunning: boolean;
+  /** The text to display on the start/stop button. */
+  buttonText: string;
+  /** Function to handle starting or stopping the timer. */
   handleStartStop: () => void;
+  /** Function to handle resetting the timer. */
   handleReset: () => void;
 }
 
 /**
- * Renders the timer display and action buttons.
- * @param {TimerProps} props - The component props.
- * @returns {JSX.Element} The rendered timer.
+ * A component that displays the timer and action buttons.
+ * @param {TimerProps} props - The props for the component.
+ * @returns {JSX.Element}
  */
-const Timer = ({ actualTime, isRunning, handleStartStop, handleReset }: TimerProps) => (
+const Timer = ({ actualTime, buttonText, handleStartStop, handleReset }: TimerProps) => (
   <div>
     <Row className="justify-content-center">
       <Col className="timer">
@@ -90,7 +116,7 @@ const Timer = ({ actualTime, isRunning, handleStartStop, handleReset }: TimerPro
       <button
         className="action-button start-button"
         onClick={handleStartStop}>
-        {isRunning ? "Pause" : "Start"}
+        {buttonText}
       </button>
       <button
         className="action-button reset-button"
@@ -101,41 +127,56 @@ const Timer = ({ actualTime, isRunning, handleStartStop, handleReset }: TimerPro
   </div>
 );
 
+// --- Main App Component ---
+
 /**
- * The main application component for the Pomodoro timer.
- * @returns {JSX.Element} The rendered application component.
+ * The main application component for the Pomodoro Timer.
+ * It manages the timer state, mode, and user interactions.
+ * @returns {JSX.Element}
  */
 function App() {
+  /** State for the current time in seconds. */
   const [actualTime, setActualTime] = useState(POMODORO_TIMES.work);
+  /** State to track if the timer is running. */
   const [isRunning, setIsRunning] = useState(false);
+  /** State for the current timer mode. */
   const [actualMode, setActualMode] = useState<Mode>("work");
+  /** State to count completed work sessions. */
   const [sessionCount, setSessionCount] = useState(0);
 
+  /**
+   * Effect to handle the timer countdown.
+   * Sets up an interval when `isRunning` is true and clears it on cleanup.
+   */
   useEffect(() => {
     let interval: ReturnType<typeof setInterval> | undefined;
 
-    if (isRunning && actualTime > 0) {
+    if (isRunning) {
       interval = setInterval(() => {
-        setActualTime((prevTime) => prevTime - 1);
+        setActualTime((prevTime) => {
+          if (prevTime <= 1) {
+            handleTimerEnd();
+            return 0;
+          }
+          return prevTime - 1;
+        });
       }, 1000);
-    } else if (actualTime === 0) {
-      handleTimerEnd();
     }
-
     return () => clearInterval(interval);
-  }, [isRunning, actualTime]);
+  }, [isRunning, actualMode]);
 
   /**
    * Handles the logic when the timer reaches zero.
+   * It stops the timer, plays an alert, and switches to the next mode.
    */
   const handleTimerEnd = () => {
     setIsRunning(false);
-    const audio = new Audio('/src/assets/alert.mp3');
-    audio.play();
+    alertAudio.play().catch(e => console.error("Audio play failed:", e));
 
     if (actualMode === "work") {
       const newSessionCount = sessionCount + 1;
       setSessionCount(newSessionCount);
+
       if (newSessionCount % 4 === 0) {
         setActualMode("longBreak");
         setActualTime(POMODORO_TIMES.longBreak);
@@ -151,7 +192,7 @@ function App() {
 
   /**
    * Changes the timer mode and resets the timer.
-   * @param {Mode} newMode - The new mode to set.
+   * @param {Mode} newMode - The new mode to switch to.
    */
   const handleModeChange = (newMode: Mode) => {
     setActualMode(newMode);
@@ -160,11 +201,13 @@ function App() {
   };
 
   /**
-   * Resets the timer to the current mode's default time and stops it.
+   * Resets the timer to the current mode's starting time and stops it.
+   * Also resets the session count.
    */
   const handleReset = () => {
     setIsRunning(false);
     setActualTime(POMODORO_TIMES[actualMode]);
+    setSessionCount(0);
   };
 
   /**
@@ -175,15 +218,38 @@ function App() {
   };
 
   return (
-    <div className={`pomodoro-container ${actualMode}`}>
-      <p >Session: {sessionCount} / 4</p>
-      <ModeSelector actualMode={actualMode} handleModeChange={handleModeChange} />
-      <Timer
-        actualTime={actualTime}
-        isRunning={isRunning}
-        handleStartStop={handleStartStop}
-        handleReset={handleReset}
-      />
+    <div className="page-layout">
+      
+      <header className="page-header">
+        <div className="header-content">
+          <h2>Pomodoro Timer</h2>
+        </div>
+      </header>
+
+      <main className="page-content">
+        <div className={`pomodoro-container ${actualMode}`}>
+          <p style={{ textAlign: 'center', color: '#718096' }}>Session: {sessionCount} / 4</p>
+          
+          <ModeSelector 
+            actualMode={actualMode} 
+            handleModeChange={handleModeChange} 
+          />
+          
+          <Timer
+            actualTime={actualTime}
+            buttonText={isRunning ? "Pause" : "Start"}
+            handleStartStop={handleStartStop}
+            handleReset={handleReset}
+          />
+        </div>
+      </main>
+
+      <footer className="page-footer">
+        <p>
+          A portfolio project by <a href="https://github.com/MatheusPMello/pomodoro-timer" target="_blank" rel="noopener noreferrer">MatheusPMello</a>
+        </p>
+      </footer>
+
     </div>
   );
 }
