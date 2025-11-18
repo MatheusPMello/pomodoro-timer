@@ -177,9 +177,7 @@ const Feedback = () => {
       <button className="feedback-button" onClick={() => setShowFeedback(true)}>Feedback</button>
       {showFeedback && (
         <div className="feedback-modal">
-          {/* This form is now correctly configured. */}
           <form name="feedback-form" method="post" data-netlify="true" onSubmit={handleFeedbackSubmit}>
-            {/* The hidden input's 'value' matches the form's 'name' */}
             <input type="hidden" name="form-name" value="feedback-form" />
             
             <h3>Share Your Feedback</h3>
