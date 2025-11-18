@@ -135,16 +135,41 @@ const Timer = ({ actualTime, buttonText, handleStartStop, handleReset }: TimerPr
  * @returns {JSX.Element}
  */
 /**
+/**
  * A component that renders the feedback button and modal.
  * @returns {JSX.Element}
  */
 const Feedback = () => {
   const [showFeedback, setShowFeedback] = useState(false);
 
+  /**
+   * Handles the submission of the feedback form to Netlify.
+   * It uses URLSearchParams to correctly encode the form data.
+   * @param {React.FormEvent<HTMLFormElement>} e - The form submit event.
+   */
   const handleFeedbackSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    // 1. Prevent the default browser reload
     e.preventDefault();
-    alert("Feedback sent! Thank you");
-    setShowFeedback(false);
+
+    // 2. Get the form data from the event
+    const form = e.currentTarget;
+    const formData = new FormData(form);
+
+    // 3. POST the data to Netlify
+    fetch("/", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams(formData as any).toString(),
+    })
+      .then(() => {
+        // Success!
+        alert("Feedback sent successfully!");
+        setShowFeedback(false); // Close the modal
+      })
+      .catch((error) => {
+        // Error
+        alert("Error sending feedback: " + error.message);
+      });
   };
 
   return (
