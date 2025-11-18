@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import './App.css';
 import { Row, Col } from 'react-bootstrap';
+import alertSound from './alert.mp3';
 
 // --- App Settings & Types ---
 
@@ -26,7 +27,7 @@ const POMODORO_TIMES: { [key in Mode]: number } = {
  * Audio element to be played when a timer session ends.
  * @type {HTMLAudioElement}
  */
-const alertAudio = new Audio('/alert.mp3');
+const alertAudio = new Audio(alertSound);
 
 // --- Helper Functions ---
 
@@ -196,13 +197,6 @@ const Feedback = () => {
   );
 };
 
-// --- Main App Component ---
-
-/**
- * The main application component for the Pomodoro Timer.
- * It manages the timer state, mode, and user interactions.
- * @returns {JSX.Element}
- */
 function App() {
   /** State for the current time in seconds. */
   const [actualTime, setActualTime] = useState(POMODORO_TIMES.work);
