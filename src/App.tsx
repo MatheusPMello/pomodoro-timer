@@ -14,16 +14,6 @@ import alertSound from './alert.mp3';
 type Mode = "work" | "shortBreak" | "longBreak";
 
 /**
- * A mapping of timer modes to their duration in seconds.
- * @type {Object.<Mode, number>}
- */
-const POMODORO_TIMES: { [key in Mode]: number } = {
-  work: 25 * 60,       // 25 minutes
-  shortBreak: 5 * 60,  // 5 minutes
-  longBreak: 15 * 60,  // 15 minutes
-};
-
-/**
  * Audio element to be played when a timer session ends.
  * @type {HTMLAudioElement}
  */
@@ -198,14 +188,22 @@ const Feedback = () => {
 };
 
 function App() {
+  
+  /** State to store mode times. */
+  const [timerSettings, setTimerSettings] = useState({
+    work: 25 * 60,
+    shortBreak: 5 * 60,
+    longBreak: 15 * 60
+  });
   /** State for the current time in seconds. */
-  const [actualTime, setActualTime] = useState(POMODORO_TIMES.work);
+  const [actualTime, setActualTime] = useState(timerSettings.work);
   /** State to track if the timer is running. */
   const [isRunning, setIsRunning] = useState(false);
   /** State for the current timer mode. */
   const [actualMode, setActualMode] = useState<Mode>("work");
   /** State to count completed work sessions. */
   const [sessionCount, setSessionCount] = useState(0);
+
 
   /**
    * Effect to handle the timer countdown.
@@ -259,14 +257,14 @@ function App() {
 
       if (newSessionCount % 4 === 0) {
         setActualMode("longBreak");
-        setActualTime(POMODORO_TIMES.longBreak);
+        setActualTime(timerSettings.longBreak);
       } else {
         setActualMode("shortBreak");
-        setActualTime(POMODORO_TIMES.shortBreak);
+        setActualTime(timerSettings.shortBreak);
       }
     } else {
       setActualMode("work");
-      setActualTime(POMODORO_TIMES.work);
+      setActualTime(timerSettings.work);
     }
   };
 
@@ -276,7 +274,7 @@ function App() {
    */
   const handleModeChange = (newMode: Mode) => {
     setActualMode(newMode);
-    setActualTime(POMODORO_TIMES[newMode]);
+    setActualTime(timerSettings[newMode]);
     setIsRunning(false);
   };
 
@@ -286,7 +284,7 @@ function App() {
    */
   const handleReset = () => {
     setIsRunning(false);
-    setActualTime(POMODORO_TIMES[actualMode]);
+    setActualTime(timerSettings[actualMode]);
     setSessionCount(0);
   };
 
