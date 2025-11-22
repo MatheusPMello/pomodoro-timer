@@ -3,28 +3,22 @@
 import { useState, useEffect } from 'react';
 import './App.css';
 import { Row, Col } from 'react-bootstrap';
-import alertSound from './alert.mp3';
+
+// NOTE: Ensure 'alert.mp3' is in your /public folder. 
+// If it is in /public, we don't need to import it.
+const alertAudio = new Audio('/alert.mp3');
 
 // --- App Settings & Types ---
 
 /**
  * Represents the possible timer modes.
- * @typedef {('work'|'shortBreak'|'longBreak')} Mode
  */
 type Mode = "work" | "shortBreak" | "longBreak";
-
-/**
- * Audio element to be played when a timer session ends.
- * @type {HTMLAudioElement}
- */
-const alertAudio = new Audio(alertSound);
 
 // --- Helper Functions ---
 
 /**
  * Formats a given time in seconds into a MM:SS string.
- * @param {number} timeInSeconds - The time in seconds to format.
- * @returns {string} The formatted time string (e.g., "25:00").
  */
 const formatTime = (timeInSeconds: number): string => {
   const minutes = Math.floor(timeInSeconds / 60);
@@ -38,22 +32,85 @@ const formatTime = (timeInSeconds: number): string => {
 
 // --- Child Components ---
 
-/**
- * Props for the ModeSelector component.
- * @interface
- */
+const SettingsModal = ({ show, onClose, onSave, currentSettings }: any) => {
+  // Initialize local state with current settings (converted to minutes)
+  const [formData, setFormData] = useState({
+    work: currentSettings.work / 60,
+    shortBreak: currentSettings.shortBreak / 60,
+    longBreak: currentSettings.longBreak / 60
+  });
+
+  // Update local state when inputs change
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: Number(value)
+    }));
+  };
+
+  if (!show) return null;
+
+  return (
+    <div className="feedback-modal">
+      <div className="settings-content" style={{ background: 'white', padding: '2rem', borderRadius: '16px', maxWidth: '400px', width: '90%' }}>
+        <h3 style={{marginBottom: '1rem', color: '#4a5568'}}>Timer Settings</h3>
+        
+        <div className="settings-group">
+          <label>Work (minutes)</label>
+          <input 
+            type="number" 
+            name="work"
+            value={formData.work}
+            onChange={handleChange}
+            min="1"
+          />
+        </div>
+
+        <div className="settings-group">
+          <label>Short Break (minutes)</label>
+          <input 
+            type="number" 
+            name="shortBreak"
+            value={formData.shortBreak}
+            onChange={handleChange}
+            min="1"
+          />
+        </div>
+
+        <div className="settings-group">
+          <label>Long Break (minutes)</label>
+          <input 
+            type="number" 
+            name="longBreak"
+            value={formData.longBreak}
+            onChange={handleChange}
+            min="1"
+          />
+        </div>
+
+        <div className="feedback-controls" style={{ marginTop: '1.5rem', display: 'flex', justifyContent: 'flex-end', gap: '1rem' }}>
+          <button className="action-button reset-button" onClick={onClose}>
+            Cancel
+          </button>
+          <button 
+            className="action-button start-button" 
+            onClick={() => onSave(formData)}
+          >
+            Save
+          </button>
+        </div>
+
+      </div>
+    </div>
+  );
+};
+
 interface ModeSelectorProps {
-  /** The current active timer mode. */
   actualMode: Mode;
-  /** Function to handle mode changes. */
   handleModeChange: (mode: Mode) => void;
 }
 
-/**
- * A component that renders buttons to switch between timer modes.
- * @param {ModeSelectorProps} props - The props for the component.
- * @returns {JSX.Element}
- */
 const ModeSelector = ({ actualMode, handleModeChange }: ModeSelectorProps) => (
   <Row className="justify-content-center">
     <Col className="mode-tabs">
@@ -76,26 +133,13 @@ const ModeSelector = ({ actualMode, handleModeChange }: ModeSelectorProps) => (
   </Row>
 );
 
-/**
- * Props for the Timer component.
- * @interface
- */
 interface TimerProps {
-  /** The current time in seconds to display. */
   actualTime: number;
-  /** The text to display on the start/stop button. */
   buttonText: string;
-  /** Function to handle starting or stopping the timer. */
   handleStartStop: () => void;
-  /** Function to handle resetting the timer. */
   handleReset: () => void;
 }
 
-/**
- * A component that displays the timer and action buttons.
- * @param {TimerProps} props - The props for the component.
- * @returns {JSX.Element}
- */
 const Timer = ({ actualTime, buttonText, handleStartStop, handleReset }: TimerProps) => (
   <div>
     <Row className="justify-content-center">
@@ -118,47 +162,24 @@ const Timer = ({ actualTime, buttonText, handleStartStop, handleReset }: TimerPr
   </div>
 );
 
-// --- Main App Component ---
-
-/**
- * The main application component for the Pomodoro Timer.
- * It manages the timer state, mode, and user interactions.
- * @returns {JSX.Element}
- */
-/**
-/**
- * A component that renders the feedback button and modal.
- * @returns {JSX.Element}
- */
 const Feedback = () => {
   const [showFeedback, setShowFeedback] = useState(false);
 
-  /**
-   * Handles the submission of the feedback form to Netlify.
-   * It uses URLSearchParams to correctly encode the form data.
-   * @param {React.FormEvent<HTMLFormElement>} e - The form submit event.
-   */
   const handleFeedbackSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    // 1. Prevent the default browser reload
     e.preventDefault();
-
-    // 2. Get the form data from the event
     const form = e.currentTarget;
     const formData = new FormData(form);
 
-    // 3. POST the data to Netlify
     fetch("/", {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body: new URLSearchParams(formData as any).toString(),
     })
       .then(() => {
-        // Success!
         alert("Feedback sent successfully!");
-        setShowFeedback(false); // Close the modal
+        setShowFeedback(false); 
       })
       .catch((error) => {
-        // Error
         alert("Error sending feedback: " + error.message);
       });
   };
@@ -187,28 +208,46 @@ const Feedback = () => {
   );
 };
 
+// --- Main App Component ---
+
 function App() {
-  
-  /** State to store mode times. */
+  // 1. NEW STATE: The "Database" for our time rules
   const [timerSettings, setTimerSettings] = useState({
     work: 25 * 60,
     shortBreak: 5 * 60,
     longBreak: 15 * 60
   });
-  /** State for the current time in seconds. */
+
+  // 2. NEW STATE: To show/hide the settings modal
+  const [showSettings, setShowSettings] = useState(false);
+
+  // Existing State
   const [actualTime, setActualTime] = useState(timerSettings.work);
-  /** State to track if the timer is running. */
   const [isRunning, setIsRunning] = useState(false);
-  /** State for the current timer mode. */
   const [actualMode, setActualMode] = useState<Mode>("work");
-  /** State to count completed work sessions. */
   const [sessionCount, setSessionCount] = useState(0);
 
+  // --- HANDLER: Save Settings ---
+  const handleSaveSettings = (newSettingsInMinutes: { work: number; shortBreak: number; longBreak: number }) => {
+    // Convert minutes to seconds
+    const newSettingsInSeconds = {
+      work: newSettingsInMinutes.work * 60,
+      shortBreak: newSettingsInMinutes.shortBreak * 60,
+      longBreak: newSettingsInMinutes.longBreak * 60,
+    };
 
-  /**
-   * Effect to handle the timer countdown.
-   * Sets up an interval when `isRunning` is true and clears it on cleanup.
-   */
+    // Update the State
+    setTimerSettings(newSettingsInSeconds);
+    
+    // Immediate update if timer is stopped
+    if (!isRunning) {
+      setActualTime(newSettingsInSeconds[actualMode]);
+    }
+    
+    // Close the modal
+    setShowSettings(false);
+  };
+
   useEffect(() => {
     let interval: ReturnType<typeof setInterval> | undefined;
 
@@ -224,7 +263,7 @@ function App() {
       }, 1000);
     }
     return () => clearInterval(interval);
-  }, [isRunning, actualMode]);
+  }, [isRunning, actualMode]); // Added actualMode dependency
 
   useEffect(() => {
     const timeString = formatTime(actualTime);
@@ -243,10 +282,6 @@ function App() {
     }
   }, [actualTime, actualMode, isRunning]);
 
-  /**
-   * Handles the logic when the timer reaches zero.
-   * It stops the timer, plays an alert, and switches to the next mode.
-   */
   const handleTimerEnd = () => {
     setIsRunning(false);
     alertAudio.play().catch(e => console.error("Audio play failed:", e));
@@ -268,29 +303,18 @@ function App() {
     }
   };
 
-  /**
-   * Changes the timer mode and resets the timer.
-   * @param {Mode} newMode - The new mode to switch to.
-   */
   const handleModeChange = (newMode: Mode) => {
     setActualMode(newMode);
     setActualTime(timerSettings[newMode]);
     setIsRunning(false);
   };
 
-  /**
-   * Resets the timer to the current mode's starting time and stops it.
-   * Also resets the session count.
-   */
   const handleReset = () => {
     setIsRunning(false);
     setActualTime(timerSettings[actualMode]);
     setSessionCount(0);
   };
 
-  /**
-   * Toggles the timer between running and paused states.
-   */
   const handleStartStop = () => {
     setIsRunning(!isRunning);
   };
@@ -301,6 +325,12 @@ function App() {
       <header className="page-header">
         <div className="header-content">
           <h2>Pomodoro Timer</h2>
+          <button 
+             className="settings-button" 
+             onClick={() => setShowSettings(true)}
+          >
+            ⚙️ Settings
+          </button>
         </div>
       </header>
 
@@ -315,12 +345,21 @@ function App() {
           
           <Timer
             actualTime={actualTime}
+            // Removed isRunning prop here because Timer doesn't accept it
             buttonText={isRunning ? "Pause" : "Start"}
             handleStartStop={handleStartStop}
             handleReset={handleReset}
           />
         </div>
       </main>
+
+      {/* RENDER THE SETTINGS MODAL */}
+      <SettingsModal 
+        show={showSettings} 
+        onClose={() => setShowSettings(false)}
+        onSave={handleSaveSettings}
+        currentSettings={timerSettings}
+      />
 
       <footer className="page-footer">
         <p>
