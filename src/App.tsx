@@ -332,7 +332,7 @@ function App() {
              className="settings-button" 
              onClick={() => setShowSettings(true)}
           >
-            ⚙️ Settings
+            Settings
           </button>
         </div>
       </header>
