@@ -19,9 +19,6 @@ interface TimerSettings {
 
 // --- Helper Functions ---
 
-/**
- * Formats a given time in seconds into a MM:SS string.
- */
 const formatTime = (timeInSeconds: number): string => {
   const minutes = Math.floor(timeInSeconds / 60);
   const seconds = timeInSeconds % 60;
@@ -34,11 +31,10 @@ interface SettingsModalProps {
   show: boolean;
   onClose: () => void;
   onSave: (settings: TimerSettings) => void;
-  currentSettings: TimerSettings; // In seconds
+  currentSettings: TimerSettings;
 }
 
 const SettingsModal: React.FC<SettingsModalProps> = ({ show, onClose, onSave, currentSettings }) => {
-  // Initialize state converting seconds -> minutes for display
   const [formData, setFormData] = useState<TimerSettings>({
     work: currentSettings.work / 60,
     shortBreak: currentSettings.shortBreak / 60,
@@ -164,7 +160,6 @@ const Timer: React.FC<TimerProps> = ({ actualTime, isRunning, handleStartStop, h
   </div>
 );
 
-// Type for the form elements to avoid 'any'
 interface FeedbackFormElements extends HTMLFormControlsCollection {
   message: HTMLTextAreaElement;
 }
@@ -203,6 +198,7 @@ const Feedback: React.FC = () => {
       {showFeedback && (
         <div className="feedback-modal">
           <form 
+            className="settings-content"
             name="feedback-form" 
             method="post" 
             data-netlify="true" 
@@ -237,7 +233,6 @@ const Feedback: React.FC = () => {
 function App() {
   const audioRef = useRef<HTMLAudioElement>(new Audio('/alert.mp3'));
 
-  // Timer configuration state (in seconds)
   const [timerSettings, setTimerSettings] = useState<TimerSettings>({
     work: DEFAULT_SETTINGS.work * 60,
     shortBreak: DEFAULT_SETTINGS.shortBreak * 60,
@@ -245,14 +240,10 @@ function App() {
   });
 
   const [showSettings, setShowSettings] = useState(false);
-  
-  // Timer execution state
   const [actualTime, setActualTime] = useState(timerSettings.work);
   const [isRunning, setIsRunning] = useState(false);
   const [actualMode, setActualMode] = useState<Mode>("work");
   const [sessionCount, setSessionCount] = useState(0);
-
-  // --- Handlers ---
 
   const handleSaveSettings = (newSettingsInMinutes: TimerSettings) => {
     const newSettingsInSeconds = {
@@ -262,10 +253,7 @@ function App() {
     };
 
     setTimerSettings(newSettingsInSeconds);
-    
-   
     setActualTime(newSettingsInSeconds[actualMode]);
-    
     setShowSettings(false);
     setIsRunning(false);
   };
@@ -303,8 +291,6 @@ function App() {
     setSessionCount(0);
   };
 
-  // --- Effects ---
-
   useEffect(() => {
     let interval: ReturnType<typeof setInterval>;
 
@@ -320,7 +306,7 @@ function App() {
       }, 1000);
     }
     return () => clearInterval(interval);
-  }, [isRunning, actualMode, timerSettings]); // added timerSettings dependency for safety
+  }, [isRunning, actualMode, timerSettings]);
 
   useEffect(() => {
     const timeString = formatTime(actualTime);
