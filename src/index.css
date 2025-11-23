@@ -1,16 +1,10 @@
 /* src/index.css */
 
 body {
-  /* * We are removing all the 'display: flex' and 'place-items'
-   * We just want to set the default margin to 0.
-   */
   margin: 0;
 }
 
 #root {
-  /* * This is the fix. We tell React's main container (#root)
-   * to be the full-height column for our layout.
-   */
   display: flex;
   flex-direction: column;
   min-height: 100vh;

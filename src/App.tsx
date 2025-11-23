@@ -4,8 +4,6 @@ import { useState, useEffect } from 'react';
 import './App.css';
 import { Row, Col } from 'react-bootstrap';
 
-// NOTE: Ensure 'alert.mp3' is in your /public folder. 
-// If it is in /public, we don't need to import it.
 const alertAudio = new Audio('/alert.mp3');
 
 // --- App Settings & Types ---
