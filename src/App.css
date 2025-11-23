@@ -82,6 +82,7 @@ body {
   justify-content: center;
   align-items: center;
   padding: 2rem;
+  padding-bottom: 4rem; 
 }
 
 /* 3. HEADER
@@ -117,7 +118,7 @@ body {
   -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--color-glass-border);
   
-  padding: 3.5rem 3rem;
+  padding: 2.1rem 1.5rem;
   border-radius: 40px;
   box-shadow: var(--shadow-soft), var(--shadow-glow);
   
@@ -276,7 +277,6 @@ body {
   left: 0;
   width: 100%;
   height: 100%;
-  /* Darker overlay */
   background-color: rgba(255, 255, 255, 0.85); 
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
@@ -288,7 +288,7 @@ body {
 
 /* Unified Card Styles */
 .settings-content {
-  background-color: #ffffff !important; /* Ensure opacity */
+  background-color: #ffffff !important;
   padding: 2.5rem;
   border-radius: 24px;
   width: 90%;
@@ -363,13 +363,16 @@ body {
 /* 7. FOOTER
    ============================================= */
 .page-footer {
-  text-align: center;
-  padding: 2rem;
-  font-size: 0.85rem;
-  /* FIX: Removed 'opacity: 0.8'. This was making the child modal transparent. */
-  /* Replaced with a lighter text color to simulate the visual effect. */
-  color: var(--color-text-tertiary);
   position: relative;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  
+  text-align: center;
+  padding: 0.1rem;
+  font-size: 0.85rem;
+  color: var(--color-text-tertiary);
+  
   z-index: 10;
 }
 
