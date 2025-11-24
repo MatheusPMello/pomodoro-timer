@@ -41,6 +41,16 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ show, onClose, onSave, cu
     longBreak: currentSettings.longBreak / 60
   });
 
+  useEffect(() => {
+    if (show) {
+      setFormData({
+        work: currentSettings.work / 60,
+        shortBreak: currentSettings.shortBreak / 60,
+        longBreak: currentSettings.longBreak / 60
+      });
+    }
+  }, [show, currentSettings]);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
