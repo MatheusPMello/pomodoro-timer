@@ -1,6 +1,6 @@
 # 🚀 Pomodoro Timer
 
-A modern, minimalist Pomodoro timer built from scratch with **React**, **TypeScript**, and **Vite**. This app is designed to help you stay focused and productive, featuring a dynamic theme that changes to match your current mode (Work, Short Break, or Long Break).
+A modern, minimalist Pomodoro timer built from scratch with **React**, **TypeScript**, and **Vite**. This app is designed to help you stay focused and productive.
 
 ## ✨ Live Demo
 
@@ -8,25 +8,25 @@ A modern, minimalist Pomodoro timer built from scratch with **React**, **TypeScr
 
 ## 📸 Preview
 
-<img width="1917" height="923" alt="image" src="https://github.com/user-attachments/assets/737fc2a3-0fc0-4d88-ba63-7f7710848333" />
+<img width="1363" height="614" alt="Pomodoro Timer Preview" src="https://github.com/user-attachments/assets/d12ac373-6ba0-4a3d-b253-e6d18ef3000b" />
 
+## ✨ Key Features
 
-## Core Features
-
-* **Dynamic Theming:** The entire app's color scheme changes to match the active mode, helping you stay in the zone.
-* **Full Pomodoro Cycle:** The app automatically cycles through Work, Short Break, and Long Break sessions, including a long break after every four work sessions.
-* **Active Mode Indicator:** The UI clearly highlights which mode ("Work", "Short Break", or "Long Break") is currently selected.
-* **Session Counter:** Visually tracks your completed work sessions so you know when your next long break is coming.
-* **Responsive Layout:** The interface is built to be clean and usable on both desktop and mobile devices.
+* **⚙️ Customizable Settings:** Don't like the defaults? Open the settings panel to define your own custom durations for work sessions and breaks.
+* **🔄 Full Pomodoro Cycle:** Automatically handles the logic for the Pomodoro Technique, including tracking completed sessions and triggering a Long Break after every four work intervals.
+* **🔔 Audio Alerts:** Plays a distinct notification sound when a timer completes so you never miss a break.
+* **📝 Browser Tab Notifications:** The document title updates in real-time with the countdown, so you can see the remaining time even when you are in another tab.
+* **💬 User Feedback:** Integrated feedback form powered by **Netlify Forms** (serverless) allows users to send suggestions directly from the app.
+* **📱 Responsive Design:** A clean, centered layout that works perfectly on desktop and mobile devices.
 
 ## 💻 Technologies Used
 
-* **Core:** React (with Hooks: `useState`, `useEffect`), TypeScript
+* **Core:** React (Hooks: `useState`, `useEffect`), TypeScript
 * **Build Tool:** Vite
 * **Styling:**
-    * `react-bootstrap` (for layout and components)
-    * Custom CSS (for dynamic theming and the minimalist UI)
-* **Deployment:** Netlify (with continuous deployment from GitHub)
+    * `react-bootstrap` (Grid system and layout)
+    * Custom CSS (for the frosted glass modals and dynamic theming)
+* **Deployment & Backend:** Netlify (Continuous Deployment + Netlify Forms)
 
 ---
 
@@ -66,7 +66,7 @@ npm run dev
 
 This will open the application in your default browser at http://localhost:5173.
 
-## 📜 Available Scripts
+### 📜 Available Scripts
 npm run dev: Runs the app in development mode.
 
 npm run build: Builds the app for production.
