@@ -43,9 +43,9 @@
   --color-input-focus: #818CF8;
 
   /* Mode Tints */
-  --color-work-tint: rgba(99, 102, 241, 0.05);
-  --color-short-tint: rgba(16, 185, 129, 0.05);
-  --color-long-tint: rgba(139, 92, 246, 0.05);
+  --color-tint: rgba(99, 102, 241, 0.05);
+  /*--color-short-tint: rgba(16, 185, 129, 0.05);
+  /*--color-long-tint: rgba(139, 92, 246, 0.05);
 
   /* Brand Colors */
   --color-btn-primary: #4F46E5;
@@ -132,9 +132,9 @@ body {
 }
 
 /* Dynamic Backgrounds */
-.pomodoro-container.work { background: linear-gradient(180deg, var(--color-glass-bg) 0%, var(--color-work-tint) 100%); }
-.pomodoro-container.shortBreak { background: linear-gradient(180deg, var(--color-glass-bg) 0%, var(--color-short-tint) 100%); }
-.pomodoro-container.longBreak { background: linear-gradient(180deg, var(--color-glass-bg) 0%, var(--color-long-tint) 100%); }
+.pomodoro-container.work { background: linear-gradient(180deg, var(--color-glass-bg) 0%, var(--color-tint) 100%); }
+.pomodoro-container.shortBreak { background: linear-gradient(180deg, var(--color-glass-bg) 0%, var(--color-tint) 100%); }
+.pomodoro-container.longBreak { background: linear-gradient(180deg, var(--color-glass-bg) 0%, var(--color-tint) 100%); }
 
 .timer {
   font-size: 7.5rem;

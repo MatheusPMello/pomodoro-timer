@@ -55,9 +55,21 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ show, onClose, onSave, cu
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: Number(value)
+      [name]: value === '' ? 0 : Number(value)
     }));
   };
+
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    const { name, value} = e.target;
+    let numValue = Number(value);
+
+    if (numValue < 1){
+      setFormData((prev) => ({
+        ...prev,
+        [name]: 1
+      }));
+    }
+  }
 
   if (!show) return null;
 
@@ -72,8 +84,9 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ show, onClose, onSave, cu
             id="work"
             type="number" 
             name="work"
-            value={formData.work}
+            value={formData.work === 0 ? '' : formData.work}
             onChange={handleChange}
+            onBlur={handleBlur}
             min="1"
           />
         </div>
