@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import './App.css';
+import alertSound from './assets/alert.mp3';
 
 // --- Constants & Types ---
 
@@ -254,7 +255,7 @@ const Feedback: React.FC = () => {
 // --- Main App Component ---
 
 function App() {
-  const audioRef = useRef<HTMLAudioElement>(new Audio('/alert.mp3'));
+  const audioRef = useRef<HTMLAudioElement>(null);
 
   const [timerSettings, setTimerSettings] = useState<TimerSettings>({
     work: DEFAULT_SETTINGS.work * 60,
@@ -281,26 +282,33 @@ function App() {
     setIsRunning(false);
   };
 
-  const handleTimerEnd = () => {
+const handleTimerEnd = useCallback(() => {
     setIsRunning(false);
-    audioRef.current.play().catch(e => console.warn("Audio autoplay blocked:", e));
+    
+    if (audioRef.current) {
+        audioRef.current.currentTime = 0;
+        audioRef.current.play().catch(e => console.error("Audio play failed:", e));
+    }
 
     if (actualMode === "work") {
-      const newSessionCount = sessionCount + 1;
-      setSessionCount(newSessionCount);
+      setSessionCount((prevCount) => {
+        const newSessionCount = prevCount + 1;
 
-      if (newSessionCount % 4 === 0) {
-        setActualMode("longBreak");
-        setActualTime(timerSettings.longBreak);
-      } else {
-        setActualMode("shortBreak");
-        setActualTime(timerSettings.shortBreak);
-      }
+        if (newSessionCount % 4 === 0) {
+          setActualMode("longBreak");
+          setActualTime(timerSettings.longBreak);
+        } else {
+          setActualMode("shortBreak");
+          setActualTime(timerSettings.shortBreak);
+        }
+
+        return newSessionCount;
+      });
     } else {
       setActualMode("work");
       setActualTime(timerSettings.work);
     }
-  };
+  }, [actualMode, timerSettings]);
 
   const handleModeChange = (newMode: Mode) => {
     setActualMode(newMode);
@@ -312,6 +320,17 @@ function App() {
     setIsRunning(false);
     setActualTime(timerSettings[actualMode]);
     setSessionCount(0);
+  };
+
+  const handleStartStop = () => {
+    if (audioRef.current) {
+      audioRef.current.play().catch(() => {
+      });
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+    }
+
+    setIsRunning(!isRunning);
   };
 
   useEffect(() => {
@@ -355,7 +374,7 @@ function App() {
              className="settings-button" 
              onClick={() => setShowSettings(true)}
           >
-            Settings
+            ⚙️ Settings
           </button>
         </div>
       </header>
@@ -374,7 +393,7 @@ function App() {
           <Timer
             actualTime={actualTime}
             isRunning={isRunning}
-            handleStartStop={() => setIsRunning(!isRunning)}
+            handleStartStop={handleStartStop}
             handleReset={handleReset}
           />
         </div>
@@ -393,6 +412,8 @@ function App() {
         </p>
         <Feedback />
       </footer>
+
+      <audio ref={audioRef} src={alertSound} preload='auto'/>
 
     </div>
   );
