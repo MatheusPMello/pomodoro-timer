@@ -256,6 +256,7 @@ const Feedback: React.FC = () => {
 
 function App() {
   const audioRef = useRef<HTMLAudioElement>(null);
+  const timerEndTime = useRef<number | null>(null);
 
   const [timerSettings, setTimerSettings] = useState<TimerSettings>({
     work: DEFAULT_SETTINGS.work * 60,
@@ -334,21 +335,31 @@ const handleTimerEnd = useCallback(() => {
   };
 
   useEffect(() => {
-    let interval: ReturnType<typeof setInterval>;
+    let interval: ReturnType<typeof setInterval> | undefined;
 
-    if (isRunning) {
-      interval = setInterval(() => {
-        setActualTime((prevTime) => {
-          if (prevTime <= 1) {
-            handleTimerEnd();
-            return 0;
-          }
-          return prevTime - 1;
-        });
-      }, 1000);
+    if (isRunning){
+      if (timerEndTime.current === null){
+        timerEndTime.current = Date.now() + actualTime * 1000;
+      }
+
+      interval = setInterval(() =>{
+        const now = Date.now();
+        const secondsLeft = Math.ceil((timerEndTime.current! - now) / 1000);
+        
+        if (secondsLeft <= 0){
+          setActualTime(0);
+          handleTimerEnd();
+          timerEndTime.current = null;
+        } else {
+          setActualTime(secondsLeft);
+        }
+      }, 100);
+    } else {
+      timerEndTime.current = null;
     }
+
     return () => clearInterval(interval);
-  }, [isRunning, actualMode, timerSettings]);
+}, [isRunning, actualTime, handleTimerEnd]);
 
   useEffect(() => {
     const timeString = formatTime(actualTime);
