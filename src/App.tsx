@@ -1,6 +1,17 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import './App.css';
 import alertSound from './assets/alert.mp3';
+import { formatTime } from './utils/timeHelpers';
+import type {
+  Mode,
+  TimerSettings,
+  SettingsModalProps,
+  ModeSelectorProps,
+  TimerProps,
+  FeedbackFormElement
+} from './types';
+
+import Timer from './components/Timer';
 
 // --- Constants & Types ---
 
@@ -10,30 +21,7 @@ const DEFAULT_SETTINGS = {
   longBreak: 15,
 };
 
-type Mode = "work" | "shortBreak" | "longBreak";
-
-interface TimerSettings {
-  work: number;
-  shortBreak: number;
-  longBreak: number;
-}
-
-// --- Helper Functions ---
-
-const formatTime = (timeInSeconds: number): string => {
-  const minutes = Math.floor(timeInSeconds / 60);
-  const seconds = timeInSeconds % 60;
-  return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-};
-
 // --- Sub-Components ---
-
-interface SettingsModalProps {
-  show: boolean;
-  onClose: () => void;
-  onSave: (settings: TimerSettings) => void;
-  currentSettings: TimerSettings;
-}
 
 const SettingsModal: React.FC<SettingsModalProps> = ({ show, onClose, onSave, currentSettings }) => {
   const [formData, setFormData] = useState<TimerSettings>({
@@ -132,11 +120,6 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ show, onClose, onSave, cu
   );
 };
 
-interface ModeSelectorProps {
-  actualMode: Mode;
-  handleModeChange: (mode: Mode) => void;
-}
-
 const ModeSelector: React.FC<ModeSelectorProps> = ({ actualMode, handleModeChange }) => (
   <div className="mode-tabs">
     <button
@@ -156,40 +139,6 @@ const ModeSelector: React.FC<ModeSelectorProps> = ({ actualMode, handleModeChang
     </button>
   </div>
 );
-
-interface TimerProps {
-  actualTime: number;
-  isRunning: boolean;
-  handleStartStop: () => void;
-  handleReset: () => void;
-}
-
-const Timer: React.FC<TimerProps> = ({ actualTime, isRunning, handleStartStop, handleReset }) => (
-  <div>
-    <div className="timer">
-      {formatTime(actualTime)}
-    </div>
-    <div className="action-buttons">
-      <button
-        className="action-button start-button"
-        onClick={handleStartStop}>
-        {isRunning ? "Pause" : "Start"}
-      </button>
-      <button
-        className="action-button reset-button"
-        onClick={handleReset}>
-        Reset
-      </button>
-    </div>
-  </div>
-);
-
-interface FeedbackFormElements extends HTMLFormControlsCollection {
-  message: HTMLTextAreaElement;
-}
-interface FeedbackFormElement extends HTMLFormElement {
-  readonly elements: FeedbackFormElements;
-}
 
 const Feedback: React.FC = () => {
   const [showFeedback, setShowFeedback] = useState(false);
