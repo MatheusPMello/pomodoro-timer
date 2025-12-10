@@ -1,47 +1,50 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import './App.css';
-import alertSound from './assets/alert.mp3';
 import { formatTime } from './utils/timeHelpers';
-import type {
-  Mode,
-  TimerSettings,
-  SettingsModalProps,
-  ModeSelectorProps,
-  TimerProps,
-  FeedbackFormElement
-} from './types';
+import { type TimerSettings } from './types';
 
-// Import Components
+// Components
 import Timer from './components/Timer';
 import ModeSelector from './components/ModeSelector';
 import SettingsModal from './components/SettingsModal';
 import Feedback from './components/Feedback';
 
-// --- Constants & Types ---
+// Hooks
+import { useAudio } from './hooks/useAudio';
+import { usePomodoro } from './hooks/usePomodoro';
 
 const DEFAULT_SETTINGS = {
-  work: 25,
-  shortBreak: 5,
-  longBreak: 15,
+  work: 25 * 60,
+  shortBreak: 5 * 60,
+  longBreak: 15 * 60
 };
 
-// --- Main App Component ---
-
 function App() {
-  const audioRef = useRef<HTMLAudioElement>(null);
-  const timerEndTime = useRef<number | null>(null);
+  // 1. Setup Audio
+  const { audioRef, alertSound, playAlert, primeAudio } = useAudio();
 
-  const [timerSettings, setTimerSettings] = useState<TimerSettings>({
-    work: DEFAULT_SETTINGS.work * 60,
-    shortBreak: DEFAULT_SETTINGS.shortBreak * 60,
-    longBreak: DEFAULT_SETTINGS.longBreak * 60
-  });
-
+  // 2. Setup Settings State (App still owns this, as it's global config)
+  const [timerSettings, setTimerSettings] = useState<TimerSettings>(DEFAULT_SETTINGS);
   const [showSettings, setShowSettings] = useState(false);
-  const [actualTime, setActualTime] = useState(timerSettings.work);
-  const [isRunning, setIsRunning] = useState(false);
-  const [actualMode, setActualMode] = useState<Mode>("work");
-  const [sessionCount, setSessionCount] = useState(0);
+
+  // 3. Setup Pomodoro Logic (Injecting settings and the sound player)
+  const {
+    actualTime,
+    isRunning,
+    actualMode,
+    sessionCount,
+    toggleTimer,
+    resetTimer,
+    changeMode,
+    updateTimeFromSettings
+  } = usePomodoro(timerSettings, playAlert); // <--- Pass playAlert here!
+
+  // --- Handlers ---
+
+  const handleStartStop = () => {
+    primeAudio(); // Fix browser autoplay
+    toggleTimer();
+  };
 
   const handleSaveSettings = (newSettingsInMinutes: TimerSettings) => {
     const newSettingsInSeconds = {
@@ -49,111 +52,29 @@ function App() {
       shortBreak: newSettingsInMinutes.shortBreak * 60,
       longBreak: newSettingsInMinutes.longBreak * 60,
     };
-
     setTimerSettings(newSettingsInSeconds);
-    setActualTime(newSettingsInSeconds[actualMode]);
+    updateTimeFromSettings(newSettingsInSeconds);
     setShowSettings(false);
-    setIsRunning(false);
   };
 
-const handleTimerEnd = useCallback(() => {
-    setIsRunning(false);
-    
-    if (audioRef.current) {
-        audioRef.current.currentTime = 0;
-        audioRef.current.play().catch(e => console.error("Audio play failed:", e));
-    }
-
-    if (actualMode === "work") {
-      setSessionCount((prevCount) => {
-        const newSessionCount = prevCount + 1;
-
-        if (newSessionCount % 4 === 0) {
-          setActualMode("longBreak");
-          setActualTime(timerSettings.longBreak);
-        } else {
-          setActualMode("shortBreak");
-          setActualTime(timerSettings.shortBreak);
-        }
-
-        return newSessionCount;
-      });
-    } else {
-      setActualMode("work");
-      setActualTime(timerSettings.work);
-    }
-  }, [actualMode, timerSettings]);
-
-  const handleModeChange = (newMode: Mode) => {
-    setActualMode(newMode);
-    setActualTime(timerSettings[newMode]);
-    setIsRunning(false);
-  };
-
-  const handleReset = () => {
-    setIsRunning(false);
-    setActualTime(timerSettings[actualMode]);
-    setSessionCount(0);
-  };
-
-  const handleStartStop = () => {
-    if (audioRef.current) {
-      audioRef.current.play().catch(() => {
-      });
-      audioRef.current.pause();
-      audioRef.current.currentTime = 0;
-    }
-
-    setIsRunning(!isRunning);
-  };
-
-  useEffect(() => {
-    let interval: ReturnType<typeof setInterval> | undefined;
-
-    if (isRunning){
-      if (timerEndTime.current === null){
-        timerEndTime.current = Date.now() + actualTime * 1000;
-      }
-
-      interval = setInterval(() =>{
-        const now = Date.now();
-        const secondsLeft = Math.ceil((timerEndTime.current! - now) / 1000);
-        
-        if (secondsLeft <= 0){
-          setActualTime(0);
-          handleTimerEnd();
-          timerEndTime.current = null;
-        } else {
-          setActualTime(secondsLeft);
-        }
-      }, 100);
-    } else {
-      timerEndTime.current = null;
-    }
-
-    return () => clearInterval(interval);
-}, [isRunning, actualTime, handleTimerEnd]);
-
+  // Browser Tab Title Effect
   useEffect(() => {
     const timeString = formatTime(actualTime);
-    const modeLabels: Record<Mode, string> = {
-      work: "Work",
-      shortBreak: "Short Break",
-      longBreak: "Long Break"
-    };
-
+    const modeLabels = { work: "Work", shortBreak: "Short Break", longBreak: "Long Break" };
+    
     document.title = isRunning 
       ? `${timeString} - ${modeLabels[actualMode]}` 
-      : "Pomodoro Timer";
-      
+      : "MelloFocus";
   }, [actualTime, actualMode, isRunning]);
+
+  // --- Render ---
 
   return (
     <div className="page-layout">
       
       <header className="page-header">
         <div className="header-content">
-          <h2>Pomodoro Timer</h2>
+          <h2>MelloFocus</h2>
           <button 
              className="settings-button" 
              onClick={() => setShowSettings(true)}
@@ -171,14 +92,14 @@ const handleTimerEnd = useCallback(() => {
           
           <ModeSelector 
             actualMode={actualMode} 
-            handleModeChange={handleModeChange} 
+            handleModeChange={changeMode} 
           />
           
           <Timer
             actualTime={actualTime}
             isRunning={isRunning}
             handleStartStop={handleStartStop}
-            handleReset={handleReset}
+            handleReset={resetTimer}
           />
         </div>
       </main>
@@ -197,7 +118,10 @@ const handleTimerEnd = useCallback(() => {
         <Feedback />
       </footer>
 
-      <audio ref={audioRef} src={alertSound} preload='auto'/>
+      {/* The Audio Element is managed by our hook now */}
+      <audio ref={audioRef} src={alertSound} preload='auto'>
+        <track kind="captions" srcLang="en" src=""/>
+      </audio>
 
     </div>
   );
