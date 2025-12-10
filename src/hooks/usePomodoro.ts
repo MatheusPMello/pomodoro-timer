@@ -63,7 +63,6 @@ export const usePomodoro = (
         }
       }, 100);
     } else {
-      // If paused, clear target so we recalculate on resume
       timerEndTime.current = null;
     }
 

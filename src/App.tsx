@@ -23,7 +23,7 @@ function App() {
   // 1. Setup Audio
   const { audioRef, alertSound, playAlert, primeAudio } = useAudio();
 
-  // 2. Setup Settings State (App still owns this, as it's global config)
+  // 2. Setup Settings State
   const [timerSettings, setTimerSettings] = useState<TimerSettings>(DEFAULT_SETTINGS);
   const [showSettings, setShowSettings] = useState(false);
 
@@ -37,12 +37,12 @@ function App() {
     resetTimer,
     changeMode,
     updateTimeFromSettings
-  } = usePomodoro(timerSettings, playAlert); // <--- Pass playAlert here!
+  } = usePomodoro(timerSettings, playAlert);
 
   // --- Handlers ---
 
   const handleStartStop = () => {
-    primeAudio(); // Fix browser autoplay
+    primeAudio();
     toggleTimer();
   };
 
@@ -118,7 +118,7 @@ function App() {
         <Feedback />
       </footer>
 
-      {/* The Audio Element is managed by our hook now */}
+      {/* The Audio Element is managed by hook*/}
       <audio ref={audioRef} src={alertSound} preload='auto'>
         <track kind="captions" srcLang="en" src=""/>
       </audio>
